@@ -3,6 +3,7 @@ using ArielWebAPI.Models;
 using ArielWebAPI.RabbitMQ;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using System.Linq;
 
@@ -15,8 +16,11 @@ namespace ArielWebAPI.Controllers
         private readonly IUserRepo _userRepo;
         private readonly RabbitMQUserConsumer _rabbitMQConsumer;
 
-        public UserController(IUserRepo userRepo, RabbitMQUserConsumer rabbitMQConsumer)
+        private readonly ILogger _logger;
+
+        public UserController(ILogger<UserController> logger,IUserRepo userRepo, RabbitMQUserConsumer rabbitMQConsumer)
         {
+            _logger = logger;
             _userRepo = userRepo;
             _rabbitMQConsumer = rabbitMQConsumer;
             
