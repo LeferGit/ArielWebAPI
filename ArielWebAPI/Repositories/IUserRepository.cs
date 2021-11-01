@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace ArielWebAPI.DBs
 {
-    public interface IUserRepo
+    public interface IUserRepository
     {
-        public IList<User> GetCollection();
+        public List<User> GetUsers();
         public void Insert(User user);
-
-        public void Remove(User user);
+        public void Remove(string id);
+        public User GetUser(string id);
     }
 }

@@ -1,65 +1,76 @@
-﻿using ArielWebAPI.DBs;
+﻿using ArielWebAPI.BL;
+using ArielWebAPI.DBs;
 using ArielWebAPI.Models;
 using ArielWebAPI.RabbitMQ;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using System;
 using System.Linq;
 
 namespace ArielWebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserRepo _userRepo;
-        private readonly RabbitMQUserConsumer _rabbitMQConsumer;
+        private readonly UserBL _userBL;
 
         private readonly ILogger _logger;
 
-        public UserController(ILogger<UserController> logger,IUserRepo userRepo, RabbitMQUserConsumer rabbitMQConsumer)
+        public UserController(ILogger<UserController> logger,UserBL userBL)
         {
             _logger = logger;
-            _userRepo = userRepo;
-            _rabbitMQConsumer = rabbitMQConsumer;
+            _userBL = userBL;
             
         }
 
-        [Route("[action]")]
-        [HttpPost]
-        public ActionResult RemoveUser(string lastName)
+        [HttpGet]
+        public ActionResult GetAllUsers()
         {
-            _userRepo.Remove(
-                new User() {LastName = lastName });
+            var users = _userBL.GetAllUsers();
+
+            //RabbitMQUserPublisher.Publish(user);//move to when creating...
+
+            return Ok(users);
+        }
+
+        [Route("{id}")]
+        [HttpDelete]
+        public ActionResult RemoveUser(string id)
+        {
+            _userBL.Remove(id);
             return Ok();
         }
 
-        [Route("[action]")]
+        [Route("{id}")]
         [HttpGet]
-        public ActionResult GetUserByLastName(string lastName)
+        public ActionResult GetUserById(string id)
         {
-            var list = _userRepo.GetCollection();
-            if (list == null)
-                return StatusCode(StatusCodes.Status503ServiceUnavailable);
-
-            var user = list.Where(x => x.LastName == lastName).FirstOrDefault();
-            
-            if(user == null)
+            try
             {
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
+                var user = _userBL.GetUser(id);
 
-            RabbitMQUserPublisher.Publish(user);
-            return Ok(user);
+                if (user == null)
+                {
+                    return StatusCode(StatusCodes.Status204NoContent);
+                }
+                return Ok(user);
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc.ToString());
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
+            //RabbitMQUserPublisher.Publish(user);//move to when creating...
+
         }
 
-        [Route("[action]")]
         [HttpPost]
         public ActionResult CreateUser(string firstName,string lastName)
         {
-            var user = new User() { FirstName = firstName, LastName = lastName };
-            _userRepo.Insert(user);
+            _userBL.CreateUser(firstName, lastName);
 
             return Ok();
         }

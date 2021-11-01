@@ -1,3 +1,4 @@
+using ArielWebAPI.BL;
 using ArielWebAPI.Controllers;
 using ArielWebAPI.DBs;
 using ArielWebAPI.RabbitMQ;
@@ -30,8 +31,10 @@ namespace ArielWebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton(typeof(IUserRepo), typeof(MongoDbUserRepo));
-            services.AddScoped(typeof(RabbitMQUserConsumer));
+            services.AddSingleton(typeof(IUserRepository), typeof(UserMongoDbRepository));
+            services.AddSingleton(typeof(RabbitMQUserConsumer));
+            services.AddSingleton(typeof(RabbitMQUserPublisher));
+            services.AddSingleton(typeof(UserBL));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

@@ -1,4 +1,6 @@
-﻿using ArielWebAPI.Models;
+﻿using ArielWebAPI.BL;
+using ArielWebAPI.DBs;
+using ArielWebAPI.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -17,8 +19,11 @@ namespace ArielWebAPI.RabbitMQ
         private User _user;
         public bool IsServiceAvailable  { get; set; }
 
-        public RabbitMQUserConsumer()
+        private IUserRepository _userRepository;
+
+        public RabbitMQUserConsumer(IUserRepository userRepository)
         {
+            _userRepository = userRepository;
             try
             {
                 var factory = new ConnectionFactory() { HostName = "localhost" };
@@ -38,11 +43,13 @@ namespace ArielWebAPI.RabbitMQ
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     _user = JsonSerializer.Deserialize<User>(message);
+                    _userRepository.Insert(_user);
                 };
 
             }
             catch (Exception exc)
             {
+
                 IsServiceAvailable = false;
             }
         }

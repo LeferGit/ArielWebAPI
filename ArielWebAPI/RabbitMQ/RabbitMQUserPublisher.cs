@@ -11,27 +11,32 @@ namespace ArielWebAPI.RabbitMQ
 {
     public class RabbitMQUserPublisher
     {
-        public static void Publish(User user)
+        private IModel _channel;
+        public bool IsServiceAvailable { get; set; }
+
+        public RabbitMQUserPublisher()
         {
             var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(queue: "usersq",
-                                 durable: false,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                arguments: null);
+            var connection = factory.CreateConnection();
+            _channel = connection.CreateModel();
+            
+            _channel.QueueDeclare(queue: "usersq",
+                                durable: false,
+                                exclusive: false,
+                                autoDelete: false,
+                            arguments: null);
 
-                string message = JsonSerializer.Serialize(
-                     user, typeof(User));
-                var body = Encoding.UTF8.GetBytes(message);
+        }
+        public void Publish(User user)
+        {
+            string message = JsonSerializer.Serialize(
+                user, typeof(User));
+            var body = Encoding.UTF8.GetBytes(message);
 
-                channel.BasicPublish(exchange: "",
-                                     routingKey: "usersq",
-                                     basicProperties: null,
-                                     body: body);
-            }
+            _channel.BasicPublish(exchange: "",
+                                    routingKey: "usersq",
+                                    basicProperties: null,
+                                    body: body);
         }
     }
 }
