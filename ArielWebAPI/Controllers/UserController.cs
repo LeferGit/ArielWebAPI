@@ -30,7 +30,7 @@ namespace ArielWebAPI.Controllers
         {
             try
             {
-                var users = _userBL.GetAllUsers();
+                var users = _userBL.GetUsers();
                 if(users == null)
                     return StatusCode(StatusCodes.Status503ServiceUnavailable);
 

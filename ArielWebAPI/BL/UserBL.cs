@@ -49,7 +49,7 @@ namespace ArielWebAPI.BL
 
         }
 
-        public List<User> GetAllUsers()
+        public List<User> GetUsers()
         {
             return _userRepo.GetUsers();
         }
