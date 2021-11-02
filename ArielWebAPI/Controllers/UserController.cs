@@ -22,26 +22,41 @@ namespace ArielWebAPI.Controllers
         public UserController(ILogger<UserController> logger,UserBL userBL)
         {
             _logger = logger;
-            _userBL = userBL;
-            
+            _userBL = userBL;       
         }
 
         [HttpGet]
         public ActionResult GetAllUsers()
         {
-            var users = _userBL.GetAllUsers();
+            try
+            {
+                var users = _userBL.GetAllUsers();
+                if(users == null)
+                    return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
-            //RabbitMQUserPublisher.Publish(user);//move to when creating...
-
-            return Ok(users);
+                return Ok(users);
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc.ToString());
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
 
         [Route("{id}")]
         [HttpDelete]
         public ActionResult RemoveUser(string id)
         {
-            _userBL.Remove(id);
-            return Ok();
+            try
+            {
+                _userBL.Remove(id);
+                return Ok();
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc.ToString());
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
 
         [Route("{id}")]
@@ -63,17 +78,22 @@ namespace ArielWebAPI.Controllers
                 _logger.LogError(exc.ToString());
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
-            //RabbitMQUserPublisher.Publish(user);//move to when creating...
-
         }
 
         [HttpPost]
         public ActionResult CreateUser(string firstName,string lastName)
         {
-            _userBL.CreateUser(firstName, lastName);
+            try
+            {
+                _userBL.CreateUser(firstName, lastName);
 
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc.ToString());
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
             return Ok();
         }
-
     }
 }

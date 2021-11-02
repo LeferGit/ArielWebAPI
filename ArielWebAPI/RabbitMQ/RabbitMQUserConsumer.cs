@@ -1,6 +1,7 @@
 ﻿using ArielWebAPI.BL;
 using ArielWebAPI.DBs;
 using ArielWebAPI.Models;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -17,13 +18,17 @@ namespace ArielWebAPI.RabbitMQ
         private EventingBasicConsumer _consumer;
         private IModel _channel;
         private User _user;
+        private ILogger _logger;
         public bool IsServiceAvailable  { get; set; }
 
         private IUserRepository _userRepository;
 
-        public RabbitMQUserConsumer(IUserRepository userRepository)
+        public RabbitMQUserConsumer(IUserRepository userRepository, ILogger<RabbitMQUserConsumer> logger)
         {
             _userRepository = userRepository;
+            IsServiceAvailable = true;
+            _logger = logger;
+
             try
             {
                 var factory = new ConnectionFactory() { HostName = "localhost" };
@@ -49,7 +54,7 @@ namespace ArielWebAPI.RabbitMQ
             }
             catch (Exception exc)
             {
-
+                _logger.LogError(exc.ToString());
                 IsServiceAvailable = false;
             }
         }

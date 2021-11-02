@@ -1,4 +1,5 @@
 ﻿using ArielWebAPI.Models;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,32 @@ namespace ArielWebAPI.RabbitMQ
     public class RabbitMQUserPublisher
     {
         private IModel _channel;
+        private ILogger _logger;
         public bool IsServiceAvailable { get; set; }
 
-        public RabbitMQUserPublisher()
+        public RabbitMQUserPublisher(ILogger<RabbitMQUserPublisher> logger)
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            var connection = factory.CreateConnection();
-            _channel = connection.CreateModel();
+            _logger = logger;
+            IsServiceAvailable = true;
+
+            try
+            {
+                var factory = new ConnectionFactory() { HostName = "localhost" };
+                var connection = factory.CreateConnection();
+                _channel = connection.CreateModel();
+
+                _channel.QueueDeclare(queue: "usersq",
+                                    durable: false,
+                                    exclusive: false,
+                                    autoDelete: false,
+                                arguments: null);
+            }
+            catch(Exception exc)
+            {
+                _logger.LogError(exc.ToString());
+                IsServiceAvailable = false;
+            }
             
-            _channel.QueueDeclare(queue: "usersq",
-                                durable: false,
-                                exclusive: false,
-                                autoDelete: false,
-                            arguments: null);
 
         }
         public void Publish(User user)

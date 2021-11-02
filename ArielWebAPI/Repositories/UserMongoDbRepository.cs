@@ -1,5 +1,6 @@
 ﻿using ArielWebAPI.DBs;
 using ArielWebAPI.Models;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -19,9 +20,13 @@ namespace ArielWebAPI.Repositories
             public string LastName { get; set; }
         }
 
-        readonly IMongoDatabase db;
-        public UserMongoDbRepository()
+        private readonly IMongoDatabase db;
+        private readonly ILogger _logger;
+
+        public UserMongoDbRepository(ILogger<UserMongoDbRepository> logger)
         {
+            _logger = logger;
+
             var client = new MongoClient("mongodb://localhost:27017");
             db = client.GetDatabase("arielTutorialDb");
         }
@@ -43,12 +48,10 @@ namespace ArielWebAPI.Repositories
                     }));
 
                 return users;
-                //return db.GetCollection<User>("users").FindSync(
-                //Builders<User>.Filter.Empty,
-                //new FindOptions<User>() { Projection = "{ _id : 0 }" }).ToList();
             }
             catch(Exception exc)
             {
+                _logger.LogError(exc.ToString());
                 return null;
             }
         }
