@@ -44,8 +44,6 @@ namespace ArielWebAPI.BL
         {
 
             _rabbitMQUserPublisher.Publish(new User() { FirstName = firstName, LastName = lastName });
-            _rabbitMQUserConsumer.Consume();
-
 
         }
 
