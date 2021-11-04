@@ -30,15 +30,15 @@ namespace ArielWebAPI.Repositories
             var client = new MongoClient("mongodb://localhost:27017");
             db = client.GetDatabase("arielTutorialDb");
         }
-        public List<User> GetUsers()
+        public async Task<List<User>> GetUsersAsync()
         {
             try
             {
-                var mongoUsers = db.GetCollection<MongoUser>("users").Find(Builders<MongoUser>.Filter.Empty).ToList();
+                var mongoUsers =  (await db.GetCollection<MongoUser>("users").FindAsync(Builders<MongoUser>.Filter.Empty)).ToListAsync();
 
                 var users = new List<User>();
 
-                mongoUsers.ForEach(mongoUser =>
+                mongoUsers.Result.ForEach(mongoUser =>
                 users.Add(
                     new User()
                     {
@@ -56,23 +56,23 @@ namespace ArielWebAPI.Repositories
             }
         }
 
-        public void Insert(User user)
+        public async Task InsertUserAsync(User user)
         {
-            db.GetCollection<MongoUser>("users").InsertOne(new MongoUser(){
+            await db.GetCollection<MongoUser>("users").InsertOneAsync(new MongoUser(){
                 id = ObjectId.GenerateNewId(),
                 FirstName = user.FirstName,
                 LastName = user.LastName});
         }
 
-        public void Remove(string id)
+        public async Task RemoveUserAsync(string id)
         {
-            db.GetCollection<MongoUser>("users").DeleteOne(x=>x.id == ObjectId.Parse(id));
+            await db.GetCollection<MongoUser>("users").DeleteOneAsync(x=>x.id == ObjectId.Parse(id));
         }
 
-        public User GetUser(string id)
+        public async Task<User> GetUserAsync(string id)
         {
-            var mongoUser = db.GetCollection<MongoUser>("users").Find(
-                Builders<MongoUser>.Filter.Eq(mongoUser => mongoUser.id, ObjectId.Parse(id))).FirstOrDefault();
+            var mongoUser = await db.GetCollection<MongoUser>("users").FindAsync(
+                Builders<MongoUser>.Filter.Eq(mongoUser => mongoUser.id, ObjectId.Parse(id))).Result.FirstOrDefaultAsync();
 
             if (mongoUser == null)
                 return null;
@@ -82,5 +82,7 @@ namespace ArielWebAPI.Repositories
                 FirstName = mongoUser.FirstName, 
                 LastName = mongoUser.LastName };
         }
+
+
     }
 }

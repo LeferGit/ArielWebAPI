@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ArielWebAPI.Controllers
 {
@@ -26,11 +27,11 @@ namespace ArielWebAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAllUsers()
+        public async Task<ActionResult> GetAllUsers()
         {
             try
             {
-                var users = _userBL.GetUsers();
+                var users = await _userBL.GetUsers();
                 if(users == null)
                     return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
@@ -45,11 +46,11 @@ namespace ArielWebAPI.Controllers
 
         [Route("{id}")]
         [HttpDelete]
-        public ActionResult RemoveUser(string id)
+        public async Task<ActionResult> RemoveUser(string id)
         {
             try
             {
-                _userBL.Remove(id);
+                await _userBL.Remove(id);
                 return Ok();
             }
             catch (Exception exc)
@@ -61,11 +62,11 @@ namespace ArielWebAPI.Controllers
 
         [Route("{id}")]
         [HttpGet]
-        public ActionResult GetUserById(string id)
+        public async Task<ActionResult> GetUserById(string id)
         {
             try
             {
-                var user = _userBL.GetUser(id);
+                var user = await _userBL.GetUser(id);
 
                 if (user == null)
                 {

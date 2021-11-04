@@ -23,33 +23,32 @@ namespace ArielWebAPI.BL
 
         public User GetUserByLastName(string lastName)
         {
-            var list = _userRepo.GetUsers();
+            var list = _userRepo.GetUsersAsync();
             if (list == null)
                 throw new Exception();
 
-            return list.Where(x => x.LastName == lastName).FirstOrDefault();
+            return list.Result.Where(x => x.LastName == lastName).FirstOrDefault();
    
         }
 
-        public User GetUser(string id)
+        public async Task<User> GetUser(string id)
         {
-            return _userRepo.GetUser(id);
+            return await _userRepo.GetUserAsync(id);
         }
-        public void Remove(string id)
+        public async Task Remove(string id)
         {
-            _userRepo.Remove(id);
+            await _userRepo.RemoveUserAsync(id);
         }
 
         public void CreateUser(string firstName,string lastName)
         {
-
             _rabbitMQUserPublisher.Publish(new User() { FirstName = firstName, LastName = lastName });
 
         }
 
-        public List<User> GetUsers()
+        public async Task<List<User>> GetUsers()
         {
-            return _userRepo.GetUsers();
+            return await _userRepo.GetUsersAsync();
         }
     }
 }

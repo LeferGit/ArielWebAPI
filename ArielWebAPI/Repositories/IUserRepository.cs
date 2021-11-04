@@ -8,9 +8,9 @@ namespace ArielWebAPI.DBs
 {
     public interface IUserRepository
     {
-        public List<User> GetUsers();
-        public void Insert(User user);
-        public void Remove(string id);
-        public User GetUser(string id);
+        public Task<List<User>> GetUsersAsync();
+        public Task InsertUserAsync(User user);
+        public Task RemoveUserAsync(string id);
+        public Task<User> GetUserAsync(string id);
     }
 }

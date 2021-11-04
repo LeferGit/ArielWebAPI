@@ -48,7 +48,7 @@ namespace ArielWebAPI.RabbitMQ
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
                     _user = JsonSerializer.Deserialize<User>(message);
-                    _userRepository.Insert(_user);
+                    _userRepository.InsertUserAsync(_user);
                 };
 
             }
