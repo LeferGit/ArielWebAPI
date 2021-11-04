@@ -83,6 +83,24 @@ namespace ArielWebAPI.Repositories
                 LastName = mongoUser.LastName };
         }
 
-
+        public async Task UpdateUserAsync(User user)
+        {
+            var MongoUser = new MongoUser()
+            {
+                id = ObjectId.Parse(user.Id),
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            };
+            try
+            {
+                await db.GetCollection<MongoUser>("users").ReplaceOneAsync(
+                Builders<MongoUser>.Filter.Eq(mongoUser => mongoUser.id, ObjectId.Parse(user.Id)),
+                MongoUser);
+            }
+            catch(Exception exc)
+            {
+                _logger.LogError(exc.ToString());
+            }
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace ArielWebAPI.Controllers
         {
             try
             {
-                var users = await _userBL.GetUsers();
+                var users = await _userBL.GetUsersAsync();
                 if(users == null)
                     return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
@@ -50,7 +50,7 @@ namespace ArielWebAPI.Controllers
         {
             try
             {
-                await _userBL.Remove(id);
+                await _userBL.RemoveUserAsync(id);
                 return Ok();
             }
             catch (Exception exc)
@@ -66,7 +66,7 @@ namespace ArielWebAPI.Controllers
         {
             try
             {
-                var user = await _userBL.GetUser(id);
+                var user = await _userBL.GetUserAsync(id);
 
                 if (user == null)
                 {
@@ -94,6 +94,16 @@ namespace ArielWebAPI.Controllers
                 _logger.LogError(exc.ToString());
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
+            return Ok();
+        }
+
+
+        [Route("{id}")]
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(string id,[FromBody]User user)
+        {
+            await _userBL.UpdateUserAsync(id,user);
+
             return Ok();
         }
     }

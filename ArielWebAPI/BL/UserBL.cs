@@ -21,21 +21,11 @@ namespace ArielWebAPI.BL
             _rabbitMQUserConsumer = rabbitMQUserConsumer;
         }
 
-        public User GetUserByLastName(string lastName)
-        {
-            var list = _userRepo.GetUsersAsync();
-            if (list == null)
-                throw new Exception();
-
-            return list.Result.Where(x => x.LastName == lastName).FirstOrDefault();
-   
-        }
-
-        public async Task<User> GetUser(string id)
+        public async Task<User> GetUserAsync(string id)
         {
             return await _userRepo.GetUserAsync(id);
         }
-        public async Task Remove(string id)
+        public async Task RemoveUserAsync(string id)
         {
             await _userRepo.RemoveUserAsync(id);
         }
@@ -46,9 +36,15 @@ namespace ArielWebAPI.BL
 
         }
 
-        public async Task<List<User>> GetUsers()
+        public async Task<List<User>> GetUsersAsync()
         {
             return await _userRepo.GetUsersAsync();
+        }
+
+        public async Task UpdateUserAsync(string id,User user)
+        {
+            user.Id = id;
+            await _userRepo.UpdateUserAsync(user);
         }
     }
 }

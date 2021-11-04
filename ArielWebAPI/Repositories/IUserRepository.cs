@@ -12,5 +12,6 @@ namespace ArielWebAPI.DBs
         public Task InsertUserAsync(User user);
         public Task RemoveUserAsync(string id);
         public Task<User> GetUserAsync(string id);
+        public Task UpdateUserAsync(User user);
     }
 }
